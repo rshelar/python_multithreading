@@ -41,13 +41,38 @@ def consumer():
             item = buffer.pop()
             print(f'Consumer: consumed {item}')
 
-t1 = Thread(target=producer)
-t2 = Thread(target=consumer)
-t1.start()
-t2.start()
-t1.join()
-t2.join()
+def demo_example1():
+    t1 = Thread(target=producer)
+    t2 = Thread(target=consumer)
+    t1.start()
+    t2.start()
+    t1.join()
+    t2.join()
 
+# Example 2: Barrier with Condition
+# Let N worker threads all wait until everyone is ready, then proceed together.
+ready_count = 0
+N = 10
+condition = Condition()
+
+def worker(i):
+    global ready_count
+    ready_count += 1
+    with condition:
+        if ready_count < N:
+            print(f"Worker{i} waiting")
+            condition.wait()
+        else:
+            print(f"Worker{i} last to arrive. Notify all")
+            condition.notify_all()
+    print(f"Worker{i} processing")
+
+def demo_example2():
+    threads = [Thread(target=worker, args=(i, )) for i in range(N)]
+    for t in threads: t.start()
+    for t in threads: t.join()
+
+demo_example2()
 
 
 
